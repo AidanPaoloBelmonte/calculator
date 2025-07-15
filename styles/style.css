@@ -1,0 +1,44 @@
+#calculator {
+    height: 95vh;
+    padding: 5px;
+    border: 3px solid black;
+    margin: 0 auto;
+    aspect-ratio: 0.6;
+
+    display: flex;
+    flex-direction: column;
+}
+
+#display {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+
+    flex: 1 3 auto;
+}
+
+#display p {
+    margin: 0;
+
+    font-size: 60px;
+    text-align: end;
+}
+
+#numpad {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    flex: 3 1 auto;
+}
+
+.key {
+    flex: auto;
+    flex-basis: 25%;
+
+    font-size: 24px;
+}
+
+.key.double {
+    flex-basis: 50%;
+}
