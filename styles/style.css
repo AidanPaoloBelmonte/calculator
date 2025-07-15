@@ -28,17 +28,19 @@
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
+    column-gap: 5px;
+    row-gap: 5px;
 
     flex: 3 1 auto;
 }
 
 .key {
     flex: auto;
-    flex-basis: 25%;
+    flex-basis: 20%;
 
     font-size: 24px;
 }
 
 .key.double {
-    flex-basis: 50%;
+    flex-basis: 45%;
 }
