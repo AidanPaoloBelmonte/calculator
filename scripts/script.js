@@ -81,8 +81,15 @@ numpad.addEventListener("click", (e) => {
     if (state < 0) {
       clearAll();
     }
-
     // Handle Number Inputs
+    if (input == ".") {
+      if (!operandCurrent) {
+        operandCurrent = "0";
+      } else if (operandCurrent.includes(input)) {
+        input = "";
+      }
+    }
+
     operandCurrent += input;
   }
 
