@@ -6,11 +6,10 @@ let operandRight = "";
 let operandCurrent = "";
 let operator = "";
 let operation = undefined;
+// State will be 0 when editing the left operand, and 1 on the right operand
 let state = 0;
 
-// State will be 0 when editing the left operand, and 1 on the right operand
-
-let keys = {
+let digits = {
   one: 1,
   two: 2,
   three: 3,
@@ -41,6 +40,28 @@ let functions = {
   equal: equal,
 };
 
+let keyboardActions = {
+  1: "one",
+  2: "two",
+  3: "three",
+  4: "four",
+  5: "five",
+  6: "six",
+  7: "seven",
+  8: "eight",
+  9: "nine",
+  0: "zero",
+  ".": "decimal",
+  "+": "add",
+  "-": "subtract",
+  "*": "multiply",
+  "/": "divide",
+  "=": "equal",
+  Enter: "equal",
+  Backspace: "clear",
+  BackspaceShift: "clearAll",
+};
+
 numpad.addEventListener("click", (e) => {
   let target = e.target.id;
 
@@ -48,7 +69,24 @@ numpad.addEventListener("click", (e) => {
     return;
   }
 
-  let input = keys[target];
+  processInput(target);
+});
+
+document.addEventListener("keydown", (e) => {
+  let key = e.key;
+
+  if (key in keyboardActions) {
+    let target = keyboardActions[key];
+    if (e.shiftKey && target == "clear") {
+      target = keyboardActions["BackspaceShift"];
+    }
+
+    processInput(target);
+  }
+});
+
+function processInput(target) {
+  let input = digits[target];
   // Handle Meta-Functions (Clear, Clear All and Equals)
   if (target in functions) {
     functions[target]();
@@ -94,7 +132,7 @@ numpad.addEventListener("click", (e) => {
   }
 
   updateDisplay();
-});
+}
 
 function add() {
   return parseFloat(operandLeft) + parseFloat(operandRight);
