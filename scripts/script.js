@@ -1,8 +1,9 @@
 let display = document.querySelector("#display p");
 let numpad = document.querySelector("#numpad");
 
-let operandLeft = "0";
+let operandLeft = "";
 let operandRight = "";
+let operandCurrent = "";
 let operator = "";
 let operation = undefined;
 let state = 0;
@@ -20,6 +21,7 @@ let keys = {
   eight: 8,
   nine: 9,
   zero: 0,
+  decimal: ".",
   add: "+",
   subtract: "-",
   multiply: "x",
@@ -27,78 +29,140 @@ let keys = {
 };
 
 let operations = {
-  add: () => add(),
-  subtract: () => subtract(),
-  multiply: () => multiply(),
-  divide: () => divide(),
+  add: add,
+  subtract: subtract,
+  multiply: multiply,
+  divide: divide,
 };
 
 let functions = {
-  clear: () => clear(),
-  clearAll: () => clearAll(),
-  equal: () => equal(),
+  clear: clear,
+  clearAll: clearAll,
+  equal: equal,
 };
 
 numpad.addEventListener("click", (e) => {
   let target = e.target.id;
 
-  let input = keys[target];
-  console.log(input);
-  if (target in operations) {
-    console.log("YES", operations[input]);
+  if (target == "numpad") {
+    return;
   }
+
+  let input = keys[target];
+  // Handle Meta-Functions (Clear, Clear All and Equals)
+  if (target in functions) {
+    functions[target]();
+    // Handle Operation Functions
+  } else if (target in operations) {
+    // Handle creating negative operands
+    if (!operandCurrent && input === "-") {
+      if (state < 0) {
+        clearAll();
+      }
+
+      operandCurrent += input;
+    } else if (!isNaN(parseInt(operandCurrent))) {
+      let success = true;
+
+      if (state <= 0) {
+        state = 1;
+      } else {
+        success = equal();
+        state = 1;
+      }
+
+      if (success) {
+        operation = operations[target];
+        operator = input;
+        operandCurrent = "";
+      }
+    }
+  } else {
+    if (state < 0) {
+      clearAll();
+    }
+
+    // Handle Number Inputs
+    operandCurrent += input;
+  }
+
+  updateDisplay();
 });
 
 function add() {
-  return parseInt(operandLeft) + parseInt(operandRight);
+  return parseFloat(operandLeft) + parseFloat(operandRight);
 }
 
 function subtract() {
-  return parseInt(operandLeft) - parseInt(operandRight);
+  return parseFloat(operandLeft) - parseFloat(operandRight);
 }
 
 function multiply() {
-  return parseInt(operandLeft) * parseInt(operandRight);
+  return parseFloat(operandLeft) * parseFloat(operandRight);
 }
 
 function divide() {
-  return parseInt(operandLeft) / parseInt(operandRight);
+  return parseFloat(operandLeft) / parseFloat(operandRight);
 }
 
 function clear() {
-  switch (state) {
-    case 0:
-      operandLeft = "";
-      break;
-    case 1:
-      if (operandRight == "") {
-        operator = "";
-        state = 0;
-      } else {
-        operandRight = "";
-      }
-      break;
+  if (isNaN(operandCurrent)) {
+    operandCurrent = "";
+  } else if (!operandCurrent && state != 0) {
+    operator = "";
+    operandCurrent = operandLeft;
+    state = 0;
+  } else {
+    operandCurrent = operandCurrent.slice(0, -1);
   }
 }
 
 function clearAll() {
   operandLeft = "";
   operandRight = "";
-  operation = "";
+  operandCurrent = "";
+  operation = undefined;
   operator = "";
   state = 0;
 }
 
-function equal(nextOperation = "") {
+function equal() {
+  if (state != 1 || operation === undefined || isNaN(operandCurrent)) {
+    return false;
+  }
+
   let result = operation();
 
-  clearAll();
-  operandLeft = result;
-
-  if (nextOperation) {
-    operator = nextOperation;
-    state = 1;
-  } else {
-    state = 0;
+  // Decimal Formatting
+  if (!Number.isInteger(result)) {
+    result = result.toFixed(2);
   }
+
+  clearAll();
+  operandLeft = result.toString();
+  operandCurrent = operandLeft;
+
+  state = -1;
+
+  return true;
+}
+
+function updateDisplay() {
+  if (state <= 0) {
+    operandLeft = operandCurrent;
+  } else {
+    operandRight = operandCurrent;
+  }
+
+  let textDisplay = operandLeft;
+
+  if (operator) {
+    textDisplay += ` ${operator}`;
+
+    if (operandRight) {
+      textDisplay += ` ${operandRight}`;
+    }
+  }
+
+  display.textContent = textDisplay;
 }
